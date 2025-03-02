@@ -1,52 +1,83 @@
-import { Game } from "./main";
+import { Game, Position } from "./main";
 
 export class Player {
   game: Game;
-  x: number;
-  y: number;
-  height: number = 20;
-  width: number = 20;
-  speed: number = 2;
+  size: number = 20;
+  speed: number = 0.25 / 10;
+
+  snake: Array<Position> = [];
 
   constructor(game: Game) {
     this.game = game;
-
-    this.x = this.game.height / 2 - this.height / 2;
-    this.y = this.game.width / 2 - this.width / 2;
+    this.grow();
   }
 
   draw(context: CanvasRenderingContext2D) {
-    context.fillRect(this.x, this.y, this.width, this.height);
+    context.fillStyle = "black";
+
+    this.snake.forEach((body, i) => {
+      if (i === 0) {
+        context.fillStyle = '#4CAF50';
+      }
+      else {
+        context.fillStyle = "black"
+      }
+
+
+      context.fillRect(
+        (body.x * this.game.titleSize) - this.size,
+        (body.y * this.game.titleSize) - this.size,
+        this.size,
+        this.size
+      );
+    });
   }
 
   update(key: string) {
+    this.updatePosition(key);
+  }
+
+  updatePosition(key: string) {
+    const head = { ...this.snake[0] };
+
     switch (key) {
       case "ArrowRight":
-        this.x += this.speed;
+        head.x++;
         break;
       case "ArrowLeft":
-        this.x -= this.speed;
+        head.x--;
         break;
       case "ArrowDown":
-        this.y += this.speed;
+        head.y++;
         break;
       case "ArrowUp":
-        this.y -= this.speed;
+        head.y--;
         break;
     }
 
-    if (this.x < 0 || this.x > this.game.height - this.height) {
-      alert("game over 1");
+    this.snake.unshift(head);
+    this.snake.pop();
+  }
 
-      this.x = this.game.height / 2 - this.height / 2;
-      this.y = this.game.width / 2 - this.width / 2;
+  grow() {
+    if (this.snake.length == 0) {
+      this.snake.push({
+        x: (this.game.totalTitles / 2),
+        y: (this.game.totalTitles / 2)
+      });
     }
+    else {
+      const tail = { ...this.snake[this.snake.length - 1] };
+      tail.x = tail.x - this.size
+      tail.y = tail.y - this.size
+      this.snake.push({ ...tail });
+    }
+  }
 
-    if (this.y < 0 || this.y > this.game.width - this.width) {
-      alert("game over 2");
-      
-      this.x = this.game.height / 2 - this.height / 2;
-      this.y = this.game.width / 2 - this.width / 2;
-    }
+  checkFoodCollision(): boolean {
+    const foodPosition = this.game.food.position;
+    const headPosition = this.snake[0];
+
+    return headPosition.x === foodPosition.x;
   }
 }

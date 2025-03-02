@@ -1,8 +1,7 @@
 import { defaultMovementKeys, isRunning } from "./main";
 
 export class InputHandler {
-  key: string = defaultMovementKeys[Math.floor(Math.random() * 4)];
-
+  key: string = "ArrowDown"//defaultMovementKeys[Math.floor(Math.random() * 4)];
 
   constructor() {
     window.addEventListener('keydown', (event) => {
